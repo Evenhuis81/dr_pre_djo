@@ -1,7 +1,11 @@
 class TransformedView {
-    PVector screenTL, screenBR, worldTL, worldBR, offset, scale, worldLength, screen, screen2, beforeWorldZoom, afterWorldZoom;
+    PVector screenTL, screenBR, worldTL, worldBR, offset, scale, worldLength;
     PVector startPan = new PVector();
     PVector world = new PVector();
+    PVector screen = new PVector();
+    PVector screen2 = new PVector();
+    PVector beforeWorldZoom = new PVector();
+    PVector afterWorldZoom = new PVector();
     boolean panning = false;
     float scaleFactor = 1.1;
 
@@ -13,33 +17,59 @@ class TransformedView {
         screenTL = new PVector(0, 0);
         screenBR = new PVector(width, height);
         worldLength = new PVector(worldBR.x - worldTL.x, worldBR.y - worldTL.y);
+
     }
 
-    PVector world2Screen(float x, float y) {
-        PVector screenTemp = new PVector(x, y).sub(offset);
-        screenTemp.x *= scale.x;
-        screenTemp.y *= scale.y;
-
-        return screenTemp;
+    void world2Screen(PVector world) {
+        screen.set(world.x, world.y).sub(offset);
+        screen.x *= scale.x;
+        screen.y *= scale.y;
     }
 
-    PVector screen2World(float x, float y) {
-        PVector worldTemp = new PVector(x, y);
-        worldTemp.x /= scale.x;
-        worldTemp.y /= scale.y;
-        worldTemp.add(offset);
-
-        return worldTemp;
+    void world2Screen(PVector world, PVector world2) {
+        screen.set(world.x, world.y).sub(offset);
+        screen.x *= scale.x;
+        screen.y *= scale.y;
+        screen2.set(world2.x, world2.y).sub(offset);
+        screen2.x *= scale.x;
+        screen2.y *= scale.y;
     }
 
-    void tvRect(float x, float y, float w, float h) {
-        screen = world2Screen(x, y);
+    void world2Screen(float x1, float y1, float x2, float y2) {
+        screen.set(x1, y1).sub(offset);
+        screen.x *= scale.x;
+        screen.y *= scale.y;
+        screen2.set(x2, y2).sub(offset);
+        screen2.x *= scale.x;
+        screen2.y *= scale.y;
+    }
+
+    void screen2World(float x, float y) {
+        world.set(x, y);
+        world.x /= scale.x;
+        world.y /= scale.y;
+        world.add(offset);
+    }
+
+    void screen2World(PVector screen) {
+        world.set(screen.x, screen.y);
+        world.x /= scale.x;
+        world.y /= scale.y;
+        world.add(offset);
+    }
+
+    void tvRect(PVector pos, float w, float h) {
+        world2Screen(pos);
         rect(screen.x, screen.y, w * scale.x, h * scale.y);
     }
 
-    void tvLine(float x, float y, float x2, float y2) {
-        screen = world2Screen(x, y);
-        screen2 = world2Screen(x2, y2);
+    void tvLine(PVector pos, PVector pos2) {
+        world2Screen(pos, pos2);
+        line(screen.x, screen.y, screen2.x, screen2.y);
+    }
+
+    void tvLine(float x1, float y1, float x2, float y2) {
+        world2Screen(x1, y1, x2, y2);
         line(screen.x, screen.y, screen2.x, screen2.y);
     }
 
@@ -48,7 +78,7 @@ class TransformedView {
         stroke(0, 0, 255);
         noFill();
 
-        tvRect(worldTL.x, worldTL.y, worldLength.x, worldLength.y);
+        tvRect(worldTL, worldLength.x, worldLength.y);
 
         strokeWeight(0.025 * scale.x);
         stroke(100);
@@ -62,21 +92,25 @@ class TransformedView {
     }
 
     void zoomOut() {
-        beforeWorldZoom = screen2World(mouseX, mouseY);
+        screen2World(mouseX, mouseY);
+        beforeWorldZoom.set(world.x, world.y);
 
         scale.mult(scaleFactor);
 
-        afterWorldZoom = screen2World(mouseX, mouseY);
+        screen2World(mouseX, mouseY);
+        afterWorldZoom.set(world.x, world.y);
 
         offset.add(PVector.sub(beforeWorldZoom, afterWorldZoom));
     }
 
     void zoomIn() {
-        beforeWorldZoom = screen2World(mouseX, mouseY);
+        screen2World(mouseX, mouseY);
+        beforeWorldZoom.set(world.x, world.y);
 
         scale.div(scaleFactor);
 
-        afterWorldZoom = screen2World(mouseX, mouseY);
+        screen2World(mouseX, mouseY);
+        afterWorldZoom.set(world.x, world.y);
 
         offset.add(PVector.sub(beforeWorldZoom, afterWorldZoom));
     }

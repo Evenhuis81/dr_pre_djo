@@ -1,8 +1,8 @@
 void keyPressed() {
     if (key == 'a' || key == 'A') player.acc.x -= 0.01;
     if (key == 'd' || key == 'D') player.acc.x += 0.01;
-    if (key == 'q' || key == 'Q') tv.zoomOut();
-    if (key == 'e' || key == 'E') tv.zoomIn();
+    if (key == 'q' || key == 'Q') tv.zoomIn();
+    if (key == 'e' || key == 'E') tv.zoomOut();
 }
 
 void keyReleased() {

@@ -17,7 +17,9 @@ class Player {
 
     void update() {
         vel.add(acc);
+
         if (grounded) vel.x *= friction;
+        
         limitX(vel, maxVelX);
         limitY(vel, maxVelY);
 
@@ -31,7 +33,7 @@ class Player {
         noStroke();
         fill(fillColor);
 
-        tv.tvRect(pos.x, pos.y, w, h);
+        tv.tvRect(pos, w, h);
     }
 
     void limitX(PVector vel, float maxVelX) {
